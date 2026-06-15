@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List - 2000+ Items</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 20px;
+        }
+        .back-btn {
+            color: #fff;
+            text-decoration: none;
+            background: #333;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+        .search-box {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            background: #1e1e1e;
+            border: 1px solid #444;
+            color: white;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+        .product-list {
+            background: #1e1e1e;
+            border-radius: 8px;
+            max-height: 70vh; /* กำหนดความสูงเพื่อให้เลื่อนดูได้ (Scroll) */
+            overflow-y: auto;
+            border: 1px solid #333;
+        }
+        .product-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #2a2a2a;
+            display: flex;
+            justify-content: space-between;
+        }
+        .product-item:last-child {
+            border-bottom: none;
+        }
+        .product-code {
+            font-weight: bold;
+            color: #4CAF50; /* สีเขียวให้รหัสเด่นขึ้น */
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>รหัสสินค้าทั้งหมด</h1>
+        <a href="index.html" class="back-btn">กลับหน้าหลัก</a>
+    </div>
+
+    <input type="text" id="searchInput" class="search-box" placeholder="พิมพ์รหัส หรือ ชื่อสินค้าเพื่อค้นหา (เช่น SKU-0001)...">
+
+    <div class="product-list" id="productList">
+        <div style="padding: 20px; text-align: center;">กำลังโหลดข้อมูล...</div>
+    </div>
+</div>
+
+<script>
+    let allProducts = []; // ตัวแปรเก็บข้อมูลสินค้าทั้งหมด
+
+    // ดึงข้อมูลจากไฟล์ JSON
+    fetch('products.json')
+        .then(response => response.json())
+        .then(data => {
+            allProducts = data;
+            displayProducts(allProducts); // แสดงผลทั้งหมดครั้งแรก
+        })
+        .catch(error => {
+            document.getElementById('productList').innerHTML = '<div style="padding: 20px; color: red;">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>';
+            console.error('Error loading JSON:', error);
+        });
+
+    // ฟังก์ชันสำหรับสร้าง HTML แสดงผลสินค้า
+    function displayProducts(products) {
+        const productListDiv = document.getElementById('productList');
+        productListDiv.innerHTML = ''; // ล้างข้อมูลเก่าออก
+
+        if (products.length === 0) {
+            productListDiv.innerHTML = '<div style="padding: 20px; text-align: center;">ไม่พบสินค้าที่ค้นหา</div>';
+            return;
+        }
+
+        // วนลูปสร้างรายการสินค้าทีละบรรทัด
+        let htmlContent = '';
+        products.forEach(product => {
+            htmlContent += `
+                <div class="product-item">
+                    <span class="product-code">${product.code}</span>
+                    <span class="product-name">${product.name}</span>
+                </div>
+            `;
+        });
+        productListDiv.innerHTML = htmlContent;
+    }
+
+    // ระบบค้นหาแบบ Real-time
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        const searchText = e.target.value.toLowerCase();
+        
+        // กรองข้อมูลที่ตรงกับคำค้นหา (หาจากรหัส หรือ ชื่อ ก็ได้)
+        const filteredProducts = allProducts.filter(product => 
+            product.code.toLowerCase().includes(searchText) || 
+            product.name.toLowerCase().includes(searchText)
+        );
+        
+        displayProducts(filteredProducts);
+    });
+</script>
+
+</body>
+</html>
