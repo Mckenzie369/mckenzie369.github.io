@@ -109,8 +109,8 @@
         products.forEach(product => {
             htmlContent += `
                 <div class="product-item">
-                    <span class="product-code">${product.code}</span>
-                    <span class="product-name">${product.name}</span>
+                    <a href="${product.url}" target="_blank" class="product-link product-code">${product.code}</a>
+                    <a href="${product.url}" target="_blank" class="product-link product-name">${product.name}</a>
                 </div>
             `;
         });
