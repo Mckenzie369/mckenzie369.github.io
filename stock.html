@@ -93,6 +93,25 @@
             outline-offset: -2px;
             background-color: #f0f8ff;
         }
+/* 1. สร้างกล่องยืดหดได้สำหรับหัวตาราง (ปรับความกว้าง) */
+        .resize-header {
+            resize: horizontal; /* อนุญาตให้ลากยืดซ้าย-ขวาได้ */
+            overflow: auto;     /* จำเป็นต้องมีเพื่อให้แถบ resize ทำงาน */
+            min-width: 60px;    /* ขนาดกว้างขั้นต่ำป้องกันการหดจนมองไม่เห็น */
+            max-width: 500px;   /* ขนาดกว้างสุด */
+            padding: 8px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 2. เปลี่ยนช่องกรอกข้อมูลให้ยืดความสูงได้ (ปรับความสูง) */
+        .resize-input {
+            resize: vertical; /* อนุญาตให้ลากยืดบน-ล่างได้ */
+            overflow: auto;
+            min-height: 40px; /* ความสูงเริ่มต้น */
+        }        
     </style>
 </head>
 <body>
