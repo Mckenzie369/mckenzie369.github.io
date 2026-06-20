@@ -187,4 +187,49 @@
     </div>
 
 </body>
+
+                    let productDatabase = []; // ตัวแปรเก็บข้อมูลสินค้าทั้งหมด
+
+    // 1. โหลดข้อมูลจาก products.json เมื่อเปิดหน้าเว็บ
+    fetch('products.json')
+        .then(response => response.json())
+        .then(data => {
+            productDatabase = data;
+            populateDatalist(productDatabase);
+        })
+        .catch(error => {
+            console.error('ไม่สามารถโหลดข้อมูล products.json ได้:', error);
+        });
+
+    // 2. ฟังก์ชันนำข้อมูลรหัสสินค้าไปใส่ใน Dropdown (<datalist>)
+    function populateDatalist(products) {
+        const datalist = document.getElementById('productList');
+        let options = '';
+        products.forEach(product => {
+            // ใส่ value เป็นรหัสสินค้า และแสดงชื่อสินค้าให้เห็นตอนค้นหาด้วย
+            options += `<option value="${product.code}">${product.name}</option>`;
+        });
+        datalist.innerHTML = options;
+    }
+
+    // 3. ฟังก์ชันเติมชื่อสินค้าอัตโนมัติเมื่อเลือกรหัสผ่าน Dropdown
+    function autoFillName(inputElement) {
+        const selectedCode = inputElement.value; // รหัสที่ผู้ใช้เลือกหรือพิมพ์
+        
+        // ค้นหาว่ารหัสนี้ ตรงกับสินค้าตัวไหนในฐานข้อมูล
+        const foundProduct = productDatabase.find(p => p.code === selectedCode);
+        
+        // ถ้าระบบค้นเจอ
+        if (foundProduct) {
+            // หากล่อง (Row) ที่ input ตัวนี้อยู่
+            const currentRow = inputElement.closest('tr');
+            // หาช่องกรอก "ชื่อสินค้า" ในบรรทัดเดียวกัน
+            const nameInput = currentRow.querySelector('.name-input');
+            
+            // นำชื่อสินค้าไปใส่ในช่องอัตโนมัติ
+            if (nameInput) {
+                nameInput.value = foundProduct.name;
+            }
+        }
+    }
 </html>
