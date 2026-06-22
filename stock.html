@@ -83,7 +83,7 @@
         async function loadCSVData() {
             try {
                 // โหลดไฟล์ data.csv ที่ถูกอัปโหลดขึ้นไป
-                const response = await fetch('data.csv');
+                const response = await fetch('https://mckenzie369.github.io/data.csv');
                 if (!response.ok) throw new Error('ไม่พบไฟล์ data.csv');
                 
                 const csvText = await response.text();
