@@ -76,14 +76,14 @@
         </table>
     </div>
 
-    <script>
+        <script>
         // ==========================================
         // 1. ระบบโหลดข้อมูลจาก CSV มากรอกตารางอัตโนมัติ
         // ==========================================
         async function loadCSVData() {
             try {
-                // โหลดไฟล์ data.csv ที่ถูกอัปโหลดขึ้นไป
-                const response = await fetch('https://mckenzie369.github.io/data.csv');
+                // โหลดไฟล์ data.csv
+                const response = await fetch('data.csv');
                 if (!response.ok) throw new Error('ไม่พบไฟล์ data.csv');
                 
                 const csvText = await response.text();
@@ -95,12 +95,12 @@
                 // เริ่มลูปอ่านข้อมูล (ข้ามบรรทัดแรกที่เป็นหัวตาราง)
                 for (let i = 1; i < rows.length; i++) {
                     const rowData = rows[i];
-                    // ข้ามบรรทัดว่าง หรือบรรทัดที่ไม่มีรหัสสินค้า
-                    if (rowData.length < 2 || !rowData[1]) continue; 
+                    
+                    // ป้องกันบั๊ก: ตรวจสอบและข้ามบรรทัดที่ว่างเปล่าในไฟล์ CSV ทิ้ง
+                    if (rowData.join('').trim() === '') continue; 
                     
                     const tr = document.createElement('tr');
                     
-                    // สร้างช่องกรอกข้อมูลและดึงข้อมูลมาใส่ให้ตรงคอลัมน์
                     tr.innerHTML = `
                         <td><input type="date" value="${formatDate(rowData[0])}"></td>
                         <td><input type="text" list="productList" class="code-input" onchange="autoFillName(this)" value="${rowData[1] || ''}"></td>
@@ -122,11 +122,11 @@
                 }
             } catch (error) {
                 console.error('Error loading CSV:', error);
-                document.getElementById('stockTableBody').innerHTML = '<tr><td colspan="15" style="padding: 20px; text-align: center; color: red;">ไม่พบไฟล์ data.csv กรุณาอัปโหลดไฟล์เข้าระบบ</td></tr>';
+                document.getElementById('stockTableBody').innerHTML = '<tr><td colspan="15" style="padding: 20px; text-align: center; color: red;">เกิดข้อผิดพลาดในการดึงข้อมูล โปรดตรวจสอบไฟล์ data.csv</td></tr>';
             }
         }
 
-        // ตัวช่วยแยกคอลัมน์จากไฟล์ CSV
+        // ตัวช่วยแยกคอลัมน์จากไฟล์ CSV (+++ แก้ไขเรื่องสัญลักษณ์การตัดบรรทัดใหม่ +++)
         function parseCSV(text) {
             const rows = []; let currentRow = []; let currentCell = ''; let inQuotes = false;
             for (let i = 0; i < text.length; i++) {
@@ -138,10 +138,11 @@
                 } else {
                     if (char === '"') { inQuotes = true; } 
                     else if (char === ',') { currentRow.push(currentCell.trim()); currentCell = ''; } 
-                    else if (char === '\\n' || char === '\\r') {
+                    // แก้ไขตรงนี้: จาก \\n เปลี่ยนเป็น \n
+                    else if (char === '\n' || char === '\r') {
                         currentRow.push(currentCell.trim()); rows.push(currentRow);
                         currentRow = []; currentCell = '';
-                        if (char === '\\r' && text[i+1] === '\\n') i++;
+                        if (char === '\r' && text[i+1] === '\n') i++;
                     } else { currentCell += char; }
                 }
             }
@@ -150,7 +151,6 @@
             return rows;
         }
 
-        // แปลงรูปแบบวันที่จาก DD/MM/YYYY ให้เป็น YYYY-MM-DD เพื่อแสดงในปฏิทินของเว็บได้
         function formatDate(dateString) {
             if (!dateString) return '';
             const parts = dateString.split('/');
@@ -159,7 +159,7 @@
         }
 
         // ==========================================
-        // 2. ระบบ Dropdown และ Auto-fill ชื่อสินค้า (โหลดจาก products.json)
+        // 2. ระบบ Dropdown และ Auto-fill ชื่อสินค้า
         // ==========================================
         let productDatabase = [];
         fetch('products.json').then(res => res.json()).then(data => {
@@ -200,7 +200,7 @@
                 return;
             }
 
-            // *** อย่าลืมนำลิงก์ Web App URL จาก Google Apps Script มาใส่ตรงนี้นะครับ ***
+            // *** อย่าลืมใส่ลิงก์ Web App URL เดิมตรงนี้ด้วยนะครับ ***
             const GOOGLE_SCRIPT_URL = "ใส่ลิงก์_WEB_APP_URL_ของคุณที่นี่";
             
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify(dataToSend), mode: 'no-cors', headers: {'Content-Type': 'application/json'} })
@@ -212,9 +212,7 @@
             });
         }
 
-        // สั่งให้โหลดข้อมูลตารางทันทีเมื่อเปิดหน้าเว็บ
         window.addEventListener('DOMContentLoaded', loadCSVData);
-
     </script>
 </body>
 </html>
